@@ -1,12 +1,11 @@
 /**
  * Resume download configuration.
  *
- * No resume PDF exists yet. To enable the "Download Resume" buttons:
- *   1. Place the owner-supplied file at  artifacts/portfolio/public/resume.pdf
- *   2. Set RESUME_PATH below to 'resume.pdf' (relative, no leading slash).
- * While null, no download button is rendered and a "pending" note is shown.
+ * Owner-supplied PDF: artifacts/portfolio/public/resume.pdf.
+ * The path is relative to Vite's public directory, with no leading slash.
+ * Setting it to null hides the download buttons and shows a pending note.
  */
-export const RESUME_PATH: string | null = null;
+export const RESUME_PATH: string | null = 'resume.pdf';
 
 export function resolveResumeUrl(): string | null {
   if (!RESUME_PATH) return null;
