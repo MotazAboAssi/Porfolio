@@ -1,0 +1,1 @@
+- [Mixed-script font loading](font-loading.md) — Arabic stability also depends on Latin font arrival; broad preloading can trade lower CLS for slower painting.

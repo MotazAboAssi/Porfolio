@@ -16,6 +16,27 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90' fill='%2300D4FF'%3EMF%3C/text%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      // Keep these font URLs aligned with the stylesheet below.
+      try {
+        if (localStorage.getItem('motaz-portfolio-language') === 'ar') {
+          for (const href of [
+            'https://fonts.gstatic.com/s/ibmplexsansarabic/v15/Qw3CZRtWPQCuHme67tEYUIx3Kh0PHR9N6Ys43PW5fslBEg0.woff2',
+            'https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2',
+          ]) {
+            const preload = document.createElement('link');
+            preload.rel = 'preload';
+            preload.as = 'font';
+            preload.type = 'font/woff2';
+            preload.crossOrigin = 'anonymous';
+            preload.href = href;
+            document.head.append(preload);
+          }
+        }
+      } catch {
+        // Ordinary font loading still works if browser storage is unavailable.
+      }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
