@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { translations, type Language } from '../i18n/translations';
 import { readLanguage, saveLanguage } from '../lib/storage';
 
@@ -9,7 +9,7 @@ function setMeta(selector: string, value: string) {
 export function useLanguage() {
   const [language, setLanguage] = useState<Language>(readLanguage);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
     root.lang = language;
     root.dir = language === 'ar' ? 'rtl' : 'ltr';
