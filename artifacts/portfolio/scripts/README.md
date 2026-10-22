@@ -3,6 +3,7 @@
 Run from the workspace root:
 
 - `pnpm --filter @workspace/portfolio check:font-preloads` — offline check of the actual inline scripts in `index.html`: saved Arabic emits exactly two distinct WOFF2 font preloads with anonymous CORS; saved English, missing/invalid preferences and denied storage access emit none.
+- `pnpm --filter @workspace/portfolio test:font-preloads` — dependency-free Node fixture regression tests for the verifier. These tests are deterministic and offline; they are separate from the build and the live Google Fonts command.
 - `pnpm --filter @workspace/portfolio check:font-preloads:live` — additionally starts the already-installed `chromium` in a fresh temporary profile and loads the unchanged document head from a temporary local server. Override the executable with `CHROMIUM_BIN` if necessary. No app workflow, dependencies or paid services are required.
 
 The live check reads Google's stylesheet response using the running browser's user agent. It selects the normal Regular (400) IBM Plex Sans Arabic **arabic** subset and Inter **latin** subset, including a variable weight range that contains 400. It compares their WOFF2 URLs exactly with the preloads, loads both faces, and checks successful CORS responses plus a single preload-initiated resource/request per font. Browser cache is disabled so a warm disk cache cannot conceal duplicate requests. This is a focused font-delivery harness, not a full-page layout/CLS or language-switching test.

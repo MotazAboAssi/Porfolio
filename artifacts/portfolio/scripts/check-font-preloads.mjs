@@ -2,19 +2,16 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { runInNewContext } from 'node:vm';
 
-const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
-  .map(match => match[1]).filter(source => source.trim());
-const stylesheet = html.match(/<link\b[^>]*href="(https:\/\/fonts\.googleapis\.com\/css2[^"]+)"[^>]*rel="stylesheet"[^>]*>/)?.[1];
-assert.ok(stylesheet, 'Cannot find the existing Google Fonts stylesheet');
-
-function hintsFor(language, blocked = false) {
+function hintsFor(html, language, blocked = false) {
+  const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+    .map(match => match[1]).filter(source => source.trim());
   const links = [];
   const document = {
     createElement(tag) {
@@ -38,10 +35,10 @@ function hintsFor(language, blocked = false) {
   return links;
 }
 
-function checkOffline() {
+export function checkOffline(html) {
   assert.ok(!/<link\b[^>]*rel=["']preload["']/i.test(html),
     'Static preloads would also affect English visits');
-  const links = hintsFor('ar');
+  const links = hintsFor(html, 'ar');
   assert.equal(links.length, 2, 'Saved Arabic must emit exactly two font preloads');
   assert.equal(new Set(links.map(link => link.href)).size, 2, 'Duplicate preloads');
   for (const link of links) {
@@ -52,12 +49,11 @@ function checkOffline() {
     assert.match(link.href, /^https:\/\/fonts\.gstatic\.com\/s\/.+\.woff2$/);
   }
   for (const language of ['en', null, 'unexpected']) {
-    assert.deepEqual(hintsFor(language), [], `Unexpected hints for ${language}`);
+    assert.deepEqual(hintsFor(html, language), [], `Unexpected hints for ${language}`);
   }
   for (const blocked of ['access', 'read']) {
-    assert.deepEqual(hintsFor('ar', blocked), [], `Blocked storage ${blocked} must not throw or add hints`);
+    assert.deepEqual(hintsFor(html, 'ar', blocked), [], `Blocked storage ${blocked} must not throw or add hints`);
   }
-  console.log('PASS offline: Arabic-only preloads, anonymous CORS, English/unset/invalid preferences, blocked storage.');
   return links.map(link => link.href);
 }
 
@@ -102,27 +98,41 @@ async function connect(url) {
   };
 }
 
-function stylesheetUrls(css) {
-  const faces = [...css.matchAll(/(?:\/\*\s*([^*]+?)\s*\*\/\s*)?@font-face\s*\{([^}]+)\}/g)];
-  return [
-    ['IBM Plex Sans Arabic', 'arabic'],
-    ['Inter', 'latin'],
-  ].map(([family, subset]) => {
-    const matches = faces.filter(([, label, body]) => {
-      const weights = body.match(/font-weight:\s*([\d ]+);/)?.[1].trim().split(/\s+/).map(Number);
-      return label?.trim() === subset
-        && body.includes(`font-family: '${family}'`)
-        && /font-style:\s*normal;/.test(body)
-        && weights && weights[0] <= 400 && weights.at(-1) >= 400;
-    });
-    assert.equal(matches.length, 1, `Cannot uniquely check ${family} Regular (${subset}) in live stylesheet`);
-    const url = matches[0][2].match(/src:\s*url\((https:\/\/[^)]+\.woff2)\)\s*format\(['"]woff2['"]\)/)?.[1];
-    assert.ok(url, `Cannot find WOFF2 URL for ${family} (${subset})`);
-    return url;
-  });
+export function assertStylesheetResponse(cssResponse) {
+  assert.ok(cssResponse, 'Cannot check fonts: Google Fonts stylesheet did not respond');
+  assert.equal(cssResponse.response.status, 200, 'Google Fonts stylesheet HTTP failure');
+  return cssResponse;
 }
 
-async function checkLive(expectedUrls) {
+export function assertBrowserEndpoint(endpoint, launchError, stderr) {
+  if (launchError) throw launchError;
+  assert.ok(endpoint, `Cannot check fonts: Chromium did not start.\n${stderr.slice(-1500)}`);
+  return endpoint;
+}
+
+export function assertLiveUrls(expectedUrls, actualUrls) {
+  assert.deepEqual([...expectedUrls].sort(), [...actualUrls].sort(),
+    'STALE FONT PRELOAD: index.html URLs differ from the live stylesheet. Inspect the named subsets before updating.');
+}
+
+export function assertFontReuse({ url, requests, failures, responses, resources, link, origin }) {
+  assert.deepEqual(link,
+    { href: url, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' });
+  const fontRequests = requests.filter(event => event.request.url === url);
+  assert.equal(fontRequests.length, 1, `Font preload was not reused: ${url}`);
+  assert.ok(!failures.some(event => event.requestId === fontRequests[0].requestId),
+    `Font request failed: ${url}`);
+  const response = responses.find(event => event.requestId === fontRequests[0].requestId)?.response;
+  assert.equal(response?.status, 200, `Font HTTP failure: ${url}`);
+  const allowOrigin = Object.entries(response.headers)
+    .find(([name]) => name.toLowerCase() === 'access-control-allow-origin')?.[1];
+  assert.ok(allowOrigin === '*' || allowOrigin === origin,
+    `Missing font CORS permission: ${url}`);
+  assert.deepEqual(resources.filter(entry => entry.name === url),
+    [{ name: url, initiatorType: 'link' }], `Expected one reused preload resource: ${url}`);
+}
+
+async function checkLive(html, stylesheet, expectedUrls) {
   const profile = await mkdtemp(join(tmpdir(), 'portfolio-font-check-'));
   // Use the real head unchanged, but isolate font loading from the React app.
   const head = html.match(/<head>([\s\S]*?)<\/head>/)?.[1];
@@ -148,9 +158,8 @@ async function checkLive(expectedUrls) {
     while (!stderr.includes('DevTools listening on ') && Date.now() < deadline && !launchError) {
       await delay(50);
     }
-    if (launchError) throw launchError;
     const endpoint = stderr.match(/DevTools listening on (ws:\/\/\S+)/)?.[1];
-    assert.ok(endpoint, `Cannot check fonts: Chromium did not start.\n${stderr.slice(-1500)}`);
+    assertBrowserEndpoint(endpoint, launchError, stderr);
     const origin = new URL(endpoint).origin.replace('ws:', 'http:');
     const targets = await (await fetch(`${origin}/json/list`, { signal: AbortSignal.timeout(5000) })).json();
     const target = targets.find(item => item.type === 'page');
@@ -177,14 +186,11 @@ async function checkLive(expectedUrls) {
       if (!ready) await delay(100);
     }
     assert.ok(ready, 'Cannot check fonts: document/stylesheet loading timed out');
-    const cssResponse = responses.find(event => event.response.url === stylesheet);
-    assert.ok(cssResponse, 'Cannot check fonts: Google Fonts stylesheet did not respond');
-    assert.equal(cssResponse.response.status, 200, 'Google Fonts stylesheet HTTP failure');
+    const cssResponse = assertStylesheetResponse(responses.find(event => event.response.url === stylesheet));
     const cssBody = await cdp.send('Network.getResponseBody', { requestId: cssResponse.requestId });
     const css = cssBody.base64Encoded ? Buffer.from(cssBody.body, 'base64').toString() : cssBody.body;
     const actualUrls = stylesheetUrls(css);
-    assert.deepEqual([...expectedUrls].sort(), [...actualUrls].sort(),
-      'STALE FONT PRELOAD: index.html URLs differ from the live stylesheet. Inspect the named subsets before updating.');
+    assertLiveUrls(expectedUrls, actualUrls);
     const loaded = await cdp.send('Runtime.evaluate', {
       expression: `(async () => {
         const results = await Promise.all([
@@ -210,20 +216,15 @@ async function checkLive(expectedUrls) {
     assert.deepEqual(evidence.loaded, [true, true], 'Both live font faces must load successfully');
     assert.equal(evidence.links.length, 2, 'Browser must emit exactly two preloads');
     for (const url of actualUrls) {
-      assert.deepEqual(evidence.links.find(link => link.href === url),
-        { href: url, as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' });
-      const fontRequests = requests.filter(event => event.request.url === url);
-      assert.equal(fontRequests.length, 1, `Font preload was not reused: ${url}`);
-      assert.ok(!failures.some(event => event.requestId === fontRequests[0].requestId),
-        `Font request failed: ${url}`);
-      const response = responses.find(event => event.requestId === fontRequests[0].requestId)?.response;
-      assert.equal(response?.status, 200, `Font HTTP failure: ${url}`);
-      const allowOrigin = Object.entries(response.headers)
-        .find(([name]) => name.toLowerCase() === 'access-control-allow-origin')?.[1];
-      assert.ok(allowOrigin === '*' || allowOrigin === `http://127.0.0.1:${server.address().port}`,
-        `Missing font CORS permission: ${url}`);
-      assert.deepEqual(evidence.resources.filter(entry => entry.name === url),
-        [{ name: url, initiatorType: 'link' }], `Expected one reused preload resource: ${url}`);
+      assertFontReuse({
+        url,
+        requests,
+        failures,
+        responses,
+        resources: evidence.resources,
+        link: evidence.links.find(link => link.href === url),
+        origin: `http://127.0.0.1:${server.address().port}`,
+      });
       console.log(`PASS live: stylesheet match, CORS, loaded face, one reused preload request: ${url}`);
     }
   } finally {
@@ -239,12 +240,42 @@ async function checkLive(expectedUrls) {
   }
 }
 
-try {
+export function stylesheetUrls(css) {
+  const faces = [...css.matchAll(/(?:\/\*\s*([^*]+?)\s*\*\/\s*)?@font-face\s*\{([^}]+)\}/g)];
+  return [
+    ['IBM Plex Sans Arabic', 'arabic'],
+    ['Inter', 'latin'],
+  ].map(([family, subset]) => {
+    const matches = faces.filter(([, label, body]) => {
+      const weights = body.match(/font-weight:\s*([\d ]+);/)?.[1].trim().split(/\s+/).map(Number);
+      return label?.trim() === subset
+        && body.includes(`font-family: '${family}'`)
+        && /font-style:\s*normal;/.test(body)
+        && weights && weights[0] <= 400 && weights.at(-1) >= 400;
+    });
+    assert.equal(matches.length, 1, `Cannot uniquely check ${family} Regular (${subset}) in live stylesheet`);
+    const url = matches[0][2].match(/src:\s*url\((https:\/\/[^)]+\.woff2)\)\s*format\(['"]woff2['"]\)/)?.[1];
+    assert.ok(url, `Cannot find WOFF2 URL for ${family} (${subset})`);
+    return url;
+  });
+}
+
+async function runCli() {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const stylesheet = html.match(/<link\b[^>]*href="(https:\/\/fonts\.googleapis\.com\/css2[^"]+)"[^>]*rel="stylesheet"[^>]*>/)?.[1];
+  assert.ok(stylesheet, 'Cannot find the existing Google Fonts stylesheet');
   assert.ok(process.argv.slice(2).every(arg => arg === '--live'), 'Only supported option: --live');
-  const urls = checkOffline();
-  if (process.argv.includes('--live')) await checkLive(urls);
+  const urls = checkOffline(html);
+  console.log('PASS offline: Arabic-only preloads, anonymous CORS, English/unset/invalid preferences, blocked storage.');
+  if (process.argv.includes('--live')) await checkLive(html, stylesheet, urls);
   else console.log('Live URLs and request reuse NOT checked. Run check:font-preloads:live (requires network + Chromium).');
-} catch (error) {
-  console.error(`FAIL font preload verification: ${error.message}`);
-  process.exitCode = 1;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  try {
+    await runCli();
+  } catch (error) {
+    console.error(`FAIL font preload verification: ${error.message}`);
+    process.exitCode = 1;
+  }
 }

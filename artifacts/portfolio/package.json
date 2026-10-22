@@ -9,7 +9,8 @@
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:font-preloads": "node scripts/check-font-preloads.mjs",
-    "check:font-preloads:live": "node scripts/check-font-preloads.mjs --live"
+    "check:font-preloads:live": "node scripts/check-font-preloads.mjs --live",
+    "test:font-preloads": "node --test scripts/check-font-preloads.test.mjs"
   },
   "dependencies": {
     "react": "catalog:",
