@@ -1,25 +1,24 @@
 import { services } from '../data/services';
-import type { Language, TranslationKey } from '../i18n/translations';
+import type { Language, T } from '../i18n/translations';
+import { Bidi } from './Bidi';
+import { SectionHead } from './SectionHead';
 
-type Props = { language: Language; t: (key: TranslationKey) => string };
+type Props = { language: Language; t: T };
 
 export function Services({ language, t }: Props) {
   return (
-    <section className="section section-rule" id="services" aria-labelledby="services-title">
+    <section className="section" id="services" aria-labelledby="services-title">
       <div className="container reveal">
-        <div className="section-heading">
-          <div><div className="eyebrow">{t('servicesEyebrow')}</div><h2 id="services-title">{t('servicesTitle')}</h2></div>
-          <div className="section-index">01 / 07<br />{t('servicesAside')}</div>
-        </div>
-        <div className="services-grid">
+        <SectionHead index="01" id="services-title" title={t('servicesTitle')} aside={t('servicesAside')} />
+        <ol className="services-list">
           {services.map((service, index) => (
-            <article className="card service-card" key={service.id}>
-              <span className="service-number">0{index + 1}</span>
+            <li className="service" key={service.id}>
+              <span className="service-num" dir="ltr">{String(index + 1).padStart(2, '0')}</span>
               <h3>{service.title[language]}</h3>
-              <p>{service.description[language]}</p>
-            </article>
+              <p><Bidi text={service.description[language]} language={language} /></p>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );

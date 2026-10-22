@@ -1,24 +1,34 @@
-import type { Language, TranslationKey } from '../i18n/translations';
+import type { Language, T } from '../i18n/translations';
 
-type Props = { language: Language; setLanguage: (language: Language) => void; t: (key: TranslationKey) => string };
+type Props = { language: Language; setLanguage: (language: Language) => void; t: T };
 
 export function Header({ language, setLanguage, t }: Props) {
-  const toggleLanguage = () => setLanguage(language === 'en' ? 'ar' : 'en');
+  const links = [
+    ['#services', t('navServices')],
+    ['#skills', t('navSkills')],
+    ['#projects', t('navProjects')],
+    ['#certifications', t('navCredentials')],
+    ['#innovation', t('navInnovation')],
+    ['#contact', t('navContact')],
+  ] as const;
   return (
     <header className="header">
       <div className="container header-inner">
-        <a className="brand" href="#top" aria-label="Motaz Feras Aboassi — home">
-          <span className="brand-mark" aria-hidden="true">MF</span>
-          <span className="brand-name">{language === 'ar' ? 'معتز فراس ابو عاصي' : 'Motaz Feras Aboassi'}</span>
+        <a className="brand" href="#top" aria-label={t('homeLabel')}>
+          <span className="brand-mark" aria-hidden="true">MA</span>
+          <span className="brand-name">{t('ownerName')}</span>
         </a>
-        <nav className="nav-group" aria-label={language === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
-          <a className="nav-link" href="#services">{t('navServices')}</a>
-          <a className="nav-link" href="#projects">{t('navProjects')}</a>
-          <a className="nav-link" href="#contact">{t('navContact')}</a>
-          <button className="language-button" type="button" onClick={toggleLanguage} aria-label={t('languageLabel')} lang={language === 'en' ? 'ar' : 'en'}>
-            {t('switchLanguage')}
-          </button>
+        <nav className="nav" aria-label={t('mainNav')}>
+          {links.map(([href, label]) => <a className="nav-link" href={href} key={href}>{label}</a>)}
         </nav>
+        <button
+          className="lang-button"
+          type="button"
+          onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+          aria-label={t('languageLabel')}
+        >
+          <span lang={language === 'en' ? 'ar' : 'en'}>{t('switchLanguage')}</span>
+        </button>
       </div>
     </header>
   );

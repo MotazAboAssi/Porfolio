@@ -1,40 +1,48 @@
+import { resolveResumeUrl } from '../config/site';
 import { useTypewriter } from '../hooks/useTypewriter';
-import type { Language, TranslationKey } from '../i18n/translations';
+import { rotatingRoles, type Language, type T } from '../i18n/translations';
+import { Bidi } from './Bidi';
+import { ArrowIcon, DownloadIcon } from './Icons';
 
-type Props = { language: Language; t: (key: TranslationKey) => string };
-const rotatingRoles = ['Full-Stack Developer', 'MERN Stack Engineer', 'Flutter Developer', 'Problem Solver'] as const;
+type Props = { language: Language; t: T };
 
 export function Hero({ language, t }: Props) {
-  const { visibleText } = useTypewriter(rotatingRoles);
+  const { visibleText } = useTypewriter(rotatingRoles[language]);
+  const resumeUrl = resolveResumeUrl();
   return (
-    <section className="hero container" id="top" aria-labelledby="hero-title">
-      <div className="hero-grid">
+    <section className="hero" id="top" aria-labelledby="hero-title">
+      <div className="container hero-grid">
         <div className="hero-copy">
-          <div className="eyebrow hero-kicker">{t('kicker')}</div>
+          <p className="kicker"><Bidi text={t('kicker')} language={language} /></p>
           <h1 id="hero-title">
-            {language === 'ar' ? (
-              <><span>{t('heroHeadlineA')}</span><br /><span>{t('heroHeadlineB')}</span><br /><span className="accent">{t('heroHeadlineC')}</span></>
-            ) : (
-              <><span>{t('heroHeadlineA')}</span><br /><span>{t('heroHeadlineB')}</span><br /><span className="accent">{t('heroHeadlineC')}</span></>
-            )}
+            <span>{t('heroHeadlineA')}</span> <span>{t('heroHeadlineB')}</span> <span className="accent">{t('heroHeadlineC')}</span>
           </h1>
-          <p className="hero-subline">{t('heroSubline')}</p>
-          <div className="role-line" aria-live="off" aria-atomic="true">
-            <span className="role-caret" aria-hidden="true" />
-            <span>{visibleText}</span>
-          </div>
+          <p className="hero-subline"><Bidi text={t('heroSubline')} language={language} /></p>
           <div className="hero-actions">
-            <a className="button" href="#contact">{t('startProject')} <span aria-hidden="true">↗</span></a>
-            <a className="button button-secondary" href="#projects">{t('viewWork')}</a>
+            <a className="button" href="#contact">{t('startProject')} <ArrowIcon className="flip-rtl" /></a>
+            <a className="button button-ghost" href="#projects">{t('viewWork')}</a>
+            {resumeUrl && (
+              <a className="button button-ghost" href={resumeUrl} download>
+                <DownloadIcon /> {t('downloadResume')}
+              </a>
+            )}
           </div>
-          <div className="trust-line">
-            <span>{t('trustFreelance')}</span><span>{t('trustBilingual')}</span><span>{t('trustRemote')}</span>
+          {!resumeUrl && <p className="resume-note"><Bidi text={t('resumePending')} language={language} /></p>}
+        </div>
+
+        <aside className="hero-panel" aria-label={t('rolesLabel')}>
+          <div className="panel-bar" aria-hidden="true"><i /><i /><i /></div>
+          <div className="panel-body">
+            <span className="panel-label">{t('rolesLabel')}</span>
+            <p className="typed" aria-hidden="true"><span dir={language === 'ar' ? 'rtl' : 'ltr'}><Bidi text={visibleText} language={language} /></span><span className="caret" /></p>
+            <p className="sr-only"><Bidi text={t('rolesList')} language={language} /></p>
+            <ul className="trust">
+              <li>{t('trustFreelance')}</li>
+              <li>{t('trustBilingual')}</li>
+              <li>{t('trustRemote')}</li>
+            </ul>
           </div>
-        </div>
-        <div className="hero-art" aria-hidden="true">
-          <div className="orbit" />
-          <div className="monogram">MF</div>
-        </div>
+        </aside>
       </div>
     </section>
   );

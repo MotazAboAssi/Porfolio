@@ -1,25 +1,37 @@
 import type { Project } from '../data/projects';
-import type { Language, TranslationKey } from '../i18n/translations';
+import type { Language, T } from '../i18n/translations';
+import { Bidi } from './Bidi';
 
-type Props = { project: Project; index: number; language: Language; t: (key: TranslationKey) => string };
+type Props = { project: Project; index: number; language: Language; t: T };
 
 export function ProjectCard({ project, index, language, t }: Props) {
+  const other: Language = language === 'en' ? 'ar' : 'en';
+  const roleAr = project.role.ar as string | null;
   return (
-    <article className="card project-card">
+    <article className="project-card" aria-labelledby={`project-${project.id}`}>
       <div className="project-top">
-        <span className="project-number">PROJECT / 0{index + 1}</span>
-        <span className="project-type">{project.type[language]}</span>
+        <span className="project-num">{t('projectLabel')} <bdi dir="ltr">{String(index + 1).padStart(2, '0')}</bdi></span>
+        <span className="project-type"><Bidi text={project.type[language]} language={language} /></span>
       </div>
-      <h3>{project.name[language]}</h3>
-      {language === 'en' && <p className="project-ar-name" lang="ar" dir="rtl">{project.name.ar}</p>}
-      {language === 'ar' && <p className="project-ar-name" lang="en" dir="ltr">{project.name.en}</p>}
-      <div className="project-tools" aria-label={t('toolLabel')}>
-        {project.tools.map((tool) => <span className="tag" key={tool} dir="ltr">{tool}</span>)}
+      <h3 id={`project-${project.id}`}>{project.name[language]}</h3>
+      <p className="project-alt-name" lang={other} dir={other === 'ar' ? 'rtl' : 'ltr'}>{project.name[other]}</p>
+      <div className="project-tools">
+        <span className="sr-only">{t('toolLabel')}: </span>
+        <ul>{project.tools.map((tool) => <li className="tag" key={tool}><bdi dir="ltr">{tool}</bdi></li>)}</ul>
       </div>
-      <p className="project-role">
+      <div className="project-role">
         <span className="role-label">{t('roleLabel')}</span>
-        {language === 'en' ? project.role.en : <span className="pending-approval">{t('rolePending')}</span>}
-      </p>
+        {language === 'ar' && roleAr ? (
+          <p>{roleAr}</p>
+        ) : language === 'ar' ? (
+          <>
+            <p lang="en" dir="ltr" className="role-en">{project.role.en}</p>
+            <p className="pending">{t('rolePending')}</p>
+          </>
+        ) : (
+          <p>{project.role.en}</p>
+        )}
+      </div>
     </article>
   );
 }

@@ -19,20 +19,33 @@ function App() {
 
   return (
     <div className="site-shell">
-      <a className="sr-only" href="#main-content">
-        {language === 'ar' ? 'انتقل إلى المحتوى' : 'Skip to content'}
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          event.preventDefault();
+          const main = document.getElementById('main-content');
+          if (!main) return;
+          main.focus({ preventScroll: true });
+          window.history.replaceState(window.history.state, '', '#main-content');
+          // Native anchor scrolling can keep a tall focused main near the current
+          // viewport. This single-page main starts immediately after the header.
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }}
+      >
+        {t('skipLink')}
       </a>
       <Header language={language} setLanguage={setLanguage} t={t} />
-      <main id="main-content">
+      <main id="main-content" tabIndex={-1}>
         <Hero language={language} t={t} />
         <Services language={language} t={t} />
         <Skills language={language} t={t} />
         <Projects language={language} t={t} />
-        <Certifications t={t} />
+        <Certifications language={language} t={t} />
         <Hackathon language={language} t={t} />
-        <Contact t={t} />
+        <Contact language={language} t={t} />
       </main>
-      <Footer language={language} t={t} />
+      <Footer t={t} />
     </div>
   );
 }
