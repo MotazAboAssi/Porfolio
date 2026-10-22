@@ -1,17 +1,15 @@
 import { projects } from '../data/projects';
-import type { Language, TranslationKey } from '../i18n/translations';
+import type { Language, T } from '../i18n/translations';
 import { ProjectCard } from './ProjectCard';
+import { SectionHead } from './SectionHead';
 
-type Props = { language: Language; t: (key: TranslationKey) => string };
+type Props = { language: Language; t: T };
 
 export function Projects({ language, t }: Props) {
   return (
-    <section className="section section-rule" id="projects" aria-labelledby="projects-title">
+    <section className="section" id="projects" aria-labelledby="projects-title">
       <div className="container reveal">
-        <div className="section-heading">
-          <div><div className="eyebrow">{t('projectsEyebrow')}</div><h2 id="projects-title">{t('projectsTitle')}</h2></div>
-          <div className="section-index">03 / 07<br />{t('projectsAside')}</div>
-        </div>
+        <SectionHead index="03" id="projects-title" title={t('projectsTitle')} aside={t('projectsAside')} />
         <div className="projects-grid">
           {projects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} language={language} t={t} />)}
         </div>

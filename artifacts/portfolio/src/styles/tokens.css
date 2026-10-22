@@ -1,15 +1,21 @@
 :root {
   --bg: #0A0F1E;
-  --accent: #00D4FF;
-  --secondary: #7C3AED;
+  --bg-alt: #0D1426;
   --surface: #141D35;
+  --surface-2: #192440;
+  --accent: #00D4FF;
+  --accent-ink: #7FE6FF;
+  --secondary: #7C3AED;
+  --secondary-ink: #B59BFA;
   --text: #E6ECF5;
-  --muted: #8A96B0;
-  --font-display: 'Space Grotesk', 'Noto Sans Arabic', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --radius: 14px;
-  --gap: clamp(16px, 3vw, 32px);
-  --line: rgba(138, 150, 176, .18);
-  --surface-raised: #192440;
-  --content: 1160px;
+  --text-2: #B7C1D3;
+  --muted: #8E9AB3;
+  --line: rgba(142, 154, 179, .16);
+  --line-strong: rgba(142, 154, 179, .3);
+  --font-sans: 'Inter', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-arabic: 'IBM Plex Sans Arabic', 'Inter', system-ui, 'Segoe UI', Tahoma, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --radius: 10px;
+  --content: 1180px;
+  --section-y: clamp(72px, 9vw, 120px);
 }

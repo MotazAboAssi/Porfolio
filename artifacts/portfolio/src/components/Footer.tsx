@@ -1,13 +1,12 @@
-import type { Language, TranslationKey } from '../i18n/translations';
+import type { T } from '../i18n/translations';
 
-type Props = { language: Language; t: (key: TranslationKey) => string };
-
-export function Footer({ language, t }: Props) {
+export function Footer({ t }: { t: T }) {
+  const year = new Date().getFullYear();
   return (
     <footer className="footer">
       <div className="container footer-inner">
-        <span>{language === 'ar' ? 'معتز فراس ابو عاصي' : 'Motaz Feras Aboassi'} · {t('footerLine')}</span>
-        <a className="text-link" href="#top">{t('backTop')} ↑</a>
+        <span>© <bdi dir="ltr">{year}</bdi> {t('ownerName')} · {t('footerLine')}</span>
+        <a className="text-link" href="#top">{t('backTop')}</a>
       </div>
     </footer>
   );

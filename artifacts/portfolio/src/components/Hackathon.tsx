@@ -1,29 +1,34 @@
 import { hackathons } from '../data/hackathons';
-import type { Language, TranslationKey } from '../i18n/translations';
+import type { Language, T } from '../i18n/translations';
+import { Bidi } from './Bidi';
 
-type Props = { language: Language; t: (key: TranslationKey) => string };
+type Props = { language: Language; t: T };
 
 export function Hackathon({ language, t }: Props) {
   return (
-    <section className="section section-rule" id="innovation" aria-labelledby="innovation-title">
-      <div className="container reveal innovation-wrap">
-        <div className="innovation-title">
-          <div className="eyebrow">{t('hackathonEyebrow')}</div>
+    <section className="section" id="innovation" aria-labelledby="innovation-title">
+      <div className="container reveal innovation">
+        <header className="innovation-head">
+          <span className="section-num" dir="ltr">05</span>
+          <p className="innovation-org"><bdi dir="ltr">{t('hackathonEyebrow')}</bdi></p>
           <h2 id="innovation-title">{t('hackathonTitle')}</h2>
-          <p>{t('hackathonIntro')}</p>
-        </div>
-        <div className="hackathon-list">
+          <p className="innovation-intro">{t('hackathonIntro')}</p>
+        </header>
+        <ol className="inno-list">
           {hackathons.map((entry) => (
-            <article className="hackathon-entry" key={entry.id}>
-              <time className="hackathon-date" dir="ltr" dateTime={entry.date === 'Jul 2026' ? '2026-07' : '2026-06'}>{entry.date}</time>
-              <div>
-                <h3 dir="auto">{entry.title}</h3>
-                <p>{entry.kind === 'hackathon' ? t('hackathon') : t('workshop')} · {entry.detail}</p>
-                <span className="hackathon-id" dir="ltr">{entry.credential}</span>
+            <li className={`inno inno-${entry.kind}`} key={entry.id}>
+              <div className="inno-meta">
+                <span className="inno-kind">{entry.kind === 'hackathon' ? t('hackathon') : t('workshop')}</span>
+                <time dir="ltr" dateTime={entry.isoDate}><Bidi text={entry.date[language]} language={language} /></time>
               </div>
-            </article>
+              <h3 lang={entry.id === 'environmental-hackathon' || language === 'ar' ? 'ar' : 'en'}>
+                <Bidi text={entry.title[language]} language={language} />
+              </h3>
+              <p><Bidi text={entry.detail[language]} language={language} /></p>
+              <span className="inno-id"><bdi dir="ltr">{entry.credential}</bdi></span>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );
