@@ -1,0 +1,15 @@
+:root {
+  --bg: #0A0F1E;
+  --accent: #00D4FF;
+  --secondary: #7C3AED;
+  --surface: #141D35;
+  --text: #E6ECF5;
+  --muted: #8A96B0;
+  --font-display: 'Space Grotesk', 'Noto Sans Arabic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 14px;
+  --gap: clamp(16px, 3vw, 32px);
+  --line: rgba(138, 150, 176, .18);
+  --surface-raised: #192440;
+  --content: 1160px;
+}
