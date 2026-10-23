@@ -1,2 +1,3 @@
 - [Mixed-script font loading](font-loading.md) — Arabic stability also depends on Latin font arrival; broad preloading can trade lower CLS for slower painting.
 - [Chromium target selection](chromium-targets.md) — select a page target explicitly; the installed browser can list extension background targets first.
+- [Safe media inspection](media-inspection.md) — ImageMagick output must be an explicit final argument in a temporary directory, never an original asset.

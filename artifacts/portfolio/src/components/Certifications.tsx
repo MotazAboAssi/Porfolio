@@ -20,7 +20,7 @@ export function Certifications({ language, t }: Props) {
                 <h3><Bidi text={c.title[language]} language={language} /></h3>
                 <p className="cred-issuer"><span className="sr-only">{t('issuerLabel')}: </span><Bidi text={c.issuer[language]} language={language} /></p>
                 {c.image && <img className="certificate-image" src={publicAssetUrl(c.image)}
-                  alt={`${t('certificateImage')}: ${c.title[language]}`} width="480" height="320" loading="lazy" />}
+                  alt={`${t('certificateImage')}: ${c.title[language]}`} width={c.imageSize?.[0] ?? 480} height={c.imageSize?.[1] ?? 320} loading="lazy" />}
                 <ResourceLinks t={t} context={c.title[language]} resources={[
                   { label: 'certificatePdf', href: c.pdf, file: true },
                   { label: 'verifyCredential', href: c.credentialUrl },

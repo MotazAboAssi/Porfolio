@@ -8,6 +8,8 @@ export type InnovationEntry = {
   isoDate: string;
   detail: Localized;
   credential: string;
+  image?: string;
+  imageSize?: [number, number];
   certificateFiles?: string[];
   credentialUrl?: string;
 };
@@ -21,6 +23,9 @@ export const hackathons: InnovationEntry[] = [
     isoDate: '2026-07',
     detail: { en: '3 days · AI/IoT prototype for Syrian environmental challenges', ar: '3 أيام · نموذج أولي AI/IoT لتحديات البيئة في سوريا' },
     credential: 'CRT-2026-5WQBWK',
+    image: 'hackathons/هاكاثون بيئة تبتكر للإبتكار البيئي.jpg',
+    imageSize: [1200, 870],
+    certificateFiles: ['hackathons/هاكاثون بيئة تبتكر.pdf'],
     credentialUrl: 'https://limvix.com/verify/CRT-2026-5WQBWK',
   },
   {
@@ -31,6 +36,9 @@ export const hackathons: InnovationEntry[] = [
     isoDate: '2026-06',
     detail: { en: 'IBTKRGO × RECO', ar: 'IBTKRGO × RECO' },
     credential: 'CRT-2026-XCD5T7',
+    image: 'hackathons/IOT.jpg',
+    imageSize: [1007, 758],
+    certificateFiles: ['hackathons/IOT Certificate.pdf'],
     credentialUrl: 'https://limvix.com/verify/CRT-2026-XCD5T7',
   },
   {
@@ -41,6 +49,9 @@ export const hackathons: InnovationEntry[] = [
     isoDate: '2026-06',
     detail: { en: 'IBTKRGO × RECO', ar: 'IBTKRGO × RECO' },
     credential: 'CRT-2026-B676SW',
+    image: 'hackathons/الذكاء الإصطناعي و تطبيقاته البيئيه.jpg',
+    imageSize: [1007, 758],
+    certificateFiles: ['hackathons/ورشة ذكاء إصطناعي.pdf'],
     credentialUrl: 'https://limvix.com/verify/CRT-2026-B676SW',
   },
 ];

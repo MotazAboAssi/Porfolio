@@ -67,10 +67,10 @@ export const projects: Project[] = [
   },
   {
     id: 'communication-skills',
-    name: { en: 'Communication Skills Course Platform', ar: 'Communication Skills Course Platform' },
+    name: { en: 'Communication Skills Course Platform', ar: 'منصة دورة مهارات التواصل' },
     tools: [],
     type: null,
-    role: { en: 'I only built the UI, logic, and animation.', ar: null },
+    role: { en: 'I only built the UI, logic, and animation.', ar: 'نفّذت واجهة المستخدم والمنطق البرمجي والرسوم المتحركة.' },
     description: 'I only built the UI, logic, and animation.',
     architecture: null,
     repo: 'https://github.com/MotazAboAssi/communication-skills-course',
