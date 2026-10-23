@@ -8,6 +8,8 @@ export type InnovationEntry = {
   isoDate: string;
   detail: Localized;
   credential: string;
+  certificateFiles?: string[];
+  credentialUrl?: string;
 };
 
 export const hackathons: InnovationEntry[] = [
@@ -19,6 +21,7 @@ export const hackathons: InnovationEntry[] = [
     isoDate: '2026-07',
     detail: { en: '3 days · AI/IoT prototype for Syrian environmental challenges', ar: '3 أيام · نموذج أولي AI/IoT لتحديات البيئة في سوريا' },
     credential: 'CRT-2026-5WQBWK',
+    credentialUrl: 'https://limvix.com/verify/CRT-2026-5WQBWK',
   },
   {
     id: 'iot-workshop',
@@ -28,6 +31,7 @@ export const hackathons: InnovationEntry[] = [
     isoDate: '2026-06',
     detail: { en: 'IBTKRGO × RECO', ar: 'IBTKRGO × RECO' },
     credential: 'CRT-2026-XCD5T7',
+    credentialUrl: 'https://limvix.com/verify/CRT-2026-XCD5T7',
   },
   {
     id: 'environmental-ai-workshop',
@@ -37,5 +41,6 @@ export const hackathons: InnovationEntry[] = [
     isoDate: '2026-06',
     detail: { en: 'IBTKRGO × RECO', ar: 'IBTKRGO × RECO' },
     credential: 'CRT-2026-B676SW',
+    credentialUrl: 'https://limvix.com/verify/CRT-2026-B676SW',
   },
 ];

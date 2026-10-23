@@ -163,6 +163,10 @@ html[lang="ar"] .project-card h3 { letter-spacing: 0; line-height: 1.4; }
 .pending { display: inline-flex; gap: 8px; margin-top: 10px; padding: 6px 10px; border: 1px dashed rgba(181,155,250,.45); border-radius: 6px; color: var(--secondary-ink); font-size: 12.5px !important; line-height: 1.6 !important; }
 
 /* Certifications */
+.resource-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.resource-links a { display: inline-block; max-width: 100%; padding: 7px 11px; border: 1px solid var(--line-strong); border-radius: 5px; color: var(--accent-ink); font-size: 13px; overflow-wrap: anywhere; }
+.resource-links a:hover { border-color: var(--accent); background: var(--surface-2); }
+.certificate-image { display: block; width: 100%; height: auto; max-height: 320px; object-fit: contain; margin-top: 14px; }
 .cred-list { border-top: 1px solid var(--line); }
 .cred { display: grid; grid-template-columns: 130px minmax(0, 1fr) minmax(0, 280px); gap: 24px; align-items: baseline; padding-block: 20px; border-bottom: 1px solid var(--line); }
 .cred-date { color: var(--accent-ink); font-size: 13px; font-family: var(--font-mono); }

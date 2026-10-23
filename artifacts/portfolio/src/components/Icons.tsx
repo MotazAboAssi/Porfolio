@@ -49,5 +49,16 @@ export function CopyIcon({ className }: P) {
 export function ContactIcon({ kind }: { kind: ContactKind }) {
   if (kind === 'email') return <MailIcon />;
   if (kind === 'github') return <GitHubIcon />;
-  return <LinkedInIcon />;
+  if (kind === 'linkedin') return <LinkedInIcon />;
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+      strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      {kind === 'instagram' ? <>
+        <rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r=".6" />
+      </> : kind === 'whatsapp' ? <>
+        <path d="M20 11.5a8 8 0 0 1-12 7L3 20l1.5-5A8 8 0 1 1 20 11.5Z" />
+        <path d="m8 7 2 2-1 2 4 4 2-1 2 2c-4 3-12-5-9-9Z" />
+      </> : <path d="m5 3 4 4-2 3c2 4 3 5 7 7l3-2 4 4c-5 7-24-12-16-16Z" />}
+    </svg>
+  );
 }

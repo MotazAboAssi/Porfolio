@@ -1,1 +1,2 @@
 - [Mixed-script font loading](font-loading.md) — Arabic stability also depends on Latin font arrival; broad preloading can trade lower CLS for slower painting.
+- [Chromium target selection](chromium-targets.md) — select a page target explicitly; the installed browser can list extension background targets first.

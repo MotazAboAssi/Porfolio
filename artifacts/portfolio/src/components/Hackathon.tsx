@@ -1,6 +1,7 @@
 import { hackathons } from '../data/hackathons';
 import type { Language, T } from '../i18n/translations';
 import { Bidi } from './Bidi';
+import { ResourceLinks } from './ResourceLinks';
 
 type Props = { language: Language; t: T };
 
@@ -26,6 +27,10 @@ export function Hackathon({ language, t }: Props) {
               </h3>
               <p><Bidi text={entry.detail[language]} language={language} /></p>
               <span className="inno-id"><bdi dir="ltr">{entry.credential}</bdi></span>
+              <ResourceLinks t={t} context={entry.title[language]} resources={[
+                ...(entry.certificateFiles ?? []).map((href) => ({ label: 'certificateFile' as const, href, file: true })),
+                { label: 'verifyCredential', href: entry.credentialUrl },
+              ]} />
             </li>
           ))}
         </ol>

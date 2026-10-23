@@ -5,7 +5,10 @@ import { Bidi } from './Bidi';
 import { ArrowIcon, ContactIcon, CopyIcon, DownloadIcon } from './Icons';
 
 type Props = { language: Language; t: T };
-const labelKey: Record<ContactKind, TranslationKey> = { email: 'emailLabel', github: 'githubLabel', linkedin: 'linkedinLabel' };
+const labelKey: Record<ContactKind, TranslationKey> = {
+  email: 'emailLabel', github: 'githubLabel', linkedin: 'linkedinLabel',
+  phone: 'phoneLabel', whatsapp: 'whatsappLabel', instagram: 'instagramLabel',
+};
 
 async function copyText(text: string): Promise<boolean> {
   try {
